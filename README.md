@@ -3,8 +3,8 @@ POC for GraalVM NativeImage using the Java Platform Module System
 
 
 ### Prerequisites  
-1. [Install](https://www.graalvm.org/docs/getting-started/) [GraalVM CE 21.3 Java 17](https://github.com/graalvm/graalvm-ce-builds/releases/tag/vm-21.3.0)
-2. [Install](https://www.graalvm.org/docs/getting-started/#native-images) Native Image `gu install native-image`
+1. [Install](https://www.graalvm.org/docs/getting-started/) [GraalVM 22 Java 17](https://www.oracle.com/downloads/graalvm-downloads.html)
+2. [Install](https://www.graalvm.org/docs/getting-started/#native-images) Native Image `gu install native-image` or from [downloaded](https://www.oracle.com/downloads/graalvm-downloads.html#license-lightbox) jar, e.g. `gu -L install native-image-installable-svm-svmee-java17-darwin-amd64-22.0.0.jar`.
 
 ### Build  
 1. Clone [NativeImageUsingJPMS](https://github.com/joerg-wille/NativeImageUsingJPMS) to local directory
