@@ -1,5 +1,5 @@
-module example.app {
+module net.jbw.playground.app {
 	
-	requires example.util;
+	requires net.jbw.playground.util;
 	
 }
