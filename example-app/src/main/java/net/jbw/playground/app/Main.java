@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.module.ModuleDescriptor;
 import java.net.MalformedURLException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import net.jbw.playground.util.Calculator;
 
@@ -19,33 +21,47 @@ public class Main {
 
         final String packageName = Main.class.getPackage().getName();
         final String moduleScope = packageName.substring(0, packageName.lastIndexOf("."));
-        displayModulesManifests(moduleScope, "META-INF/MANIFEST.MF");
-
+        printModulesInfo(moduleScope);
     }
 
-    private static void displayModulesManifests(final String moduleScope, final String manifestPath) {
+    private static void printModulesInfo(final String moduleScope) {
         ModuleLayer.boot().modules().stream()
                 .map(Module::getName)
                 .filter(name -> name.startsWith(moduleScope))
                 .forEach(name -> {
-                    getManifestFromModule(name, manifestPath);
+                    Optional<Module> aModule = ModuleLayer.boot().findModule(name);
+                    aModule.ifPresent(module -> {
+                        System.out.println("Module info for \"" + name + "\":");
+                        printModuleDescriptor(module.getDescriptor());
+                        printModuleResource(module, "META-INF/MANIFEST.MF");
+                    });
                 });
     }
 
-    private static void getManifestFromModule(final String moduleName, final String manifestPath) {
-        Optional<Module> aModule = ModuleLayer.boot().findModule(moduleName);
-        aModule.ifPresent(module -> {
-            try {
-                InputStream is = module.getResourceAsStream(manifestPath);
-                readManifest(moduleName, manifestPath, is);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+    private static void printModuleDescriptor(final ModuleDescriptor descriptor) {
+        System.out.println("    Module descriptor:");
+        printModuleDescriptorRule("Packages", descriptor.packages());
+        printModuleDescriptorRule("Modifiers", descriptor.modifiers());
+        printModuleDescriptorRule("Opens", descriptor.opens());
+        printModuleDescriptorRule("Provides", descriptor.provides());
+        printModuleDescriptorRule("Requires", descriptor.requires());
+        printModuleDescriptorRule("Uses", descriptor.uses());
+    }
+
+    private static <E> void printModuleDescriptorRule(final String ruleType, final Set<E> rules) {
+        System.out.println("        " + ruleType + ":");
+        rules.stream().forEach(rule -> {
+            System.out.println("            " + rule);
         });
     }
 
-    private static void readManifest(final String moduleName, final String manifestPath, final InputStream is) {
-        String manifest = new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.joining("\n"));
-        System.out.println("\"" + manifestPath + "\" from module \"" +  moduleName + "\": " + "\n" + manifest);
+    private static void printModuleResource(final Module module, final String resourcePath) {
+        System.out.println("    Module resource \"" + resourcePath + "\":");
+        try {
+            InputStream is = module.getResourceAsStream(resourcePath);
+            System.out.println(new BufferedReader(new InputStreamReader(is)).lines().map(line -> "       " + line).collect(Collectors.joining("\n")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
