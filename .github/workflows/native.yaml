@@ -41,8 +41,12 @@ jobs:
     strategy:
       matrix:
         include:
+          - os: ubuntu-latest
+            artifact_name: linux-binary
           - os: macos-latest
             artifact_name: macos-binary
+          - os: windows-latest
+            artifact_name: windows-binary
     steps:
       - name: 'Checkout code'
         uses: actions/checkout@v2
@@ -59,16 +63,26 @@ jobs:
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: 'Build native image on Linux'
+        run: mvn -P native package
+        if: runner.os == 'Linux'
+        
       - name: 'Build native image on macOS'
         run: mvn -P native package
         if: runner.os == 'macOS'
+        
+      - name: 'Build native image on Windows'
+        run: mvn -P native package
+        if: runner.os == 'Windows'
       
       - name: Temporarily save package
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            ${{ github.workspace }}/example-app/target/NativeImageUsingJPMS-App
+            ${{ github.workspace }}/example-app/target/NativeImageUsingJPMS-*
+            !*.txt
+            !*.jar
   
   publish-binaries:
     name: 'Publish binaries to GitHub packages'
@@ -77,9 +91,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - artifact_name: java-binary
-            binary_name: nubesgen-cli-*.jar
-            file_glob: true
           - artifact_name: linux-binary
             binary_name: NativeImageUsingJPMS-linux
             file_glob: false
