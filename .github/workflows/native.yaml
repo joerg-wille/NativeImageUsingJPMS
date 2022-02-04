@@ -1,0 +1,56 @@
+name: Build native-image
+
+on:
+  workflow_dispatch: # manual trigger build
+
+jobs:
+  build-jar:
+    name: 'Build JAR package'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v2
+
+      - name: 'Set up Java'
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin' # Eclipse Temurin
+          java-version: '11'
+          architecture: x64
+          check-latest: true # use most up-to-date version of Java
+          cache: 'maven' # use built-in package manager for caching and restoring dependencies
+
+      - name: 'Build with Maven'
+        run: 'mvn'
+        
+      - name: Temporarily save package
+        uses: actions/upload-artifact@v2
+        with:
+          name: java-binary
+          path: |
+            ${{ github.workspace }}/example-app/target/*.jar
+
+
+   publish-binaries:
+    name: 'Publish binaries to GitHub packages'
+    needs: [ build-jar ]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - artifact_name: java-binary
+            binary_name: NativeImageUsingJPMS-*.jar
+            file_glob: true
+    steps:
+      - name: Download binary
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.artifact_name }}
+      - name: Upload binary to the GitHub release page
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ matrix.binary_name }}
+          file_glob: ${{ matrix.file_glob }}
+          tag: ${{ github.ref }}
+          overwrite: true
