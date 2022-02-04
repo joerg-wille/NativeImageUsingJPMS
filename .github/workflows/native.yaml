@@ -1,7 +1,8 @@
 name: Build native-image
 
 on:
-  workflow_dispatch: # manual trigger build
+  # manual trigger build
+  workflow_dispatch:
 
 jobs:
   build-jar:
@@ -14,11 +15,14 @@ jobs:
       - name: 'Set up Java'
         uses: actions/setup-java@v2
         with:
-          distribution: 'temurin' # Eclipse Temurin
+          # Eclipse Temurin
+          distribution: 'temurin'
           java-version: '11'
           architecture: x64
-          check-latest: true # use most up-to-date version of Java
-          cache: 'maven' # use built-in package manager for caching and restoring dependencies
+          # use most up-to-date version of Java
+          check-latest: true
+          # use built-in package manager for caching and restoring dependencies
+          cache: 'maven'
 
       - name: 'Build with Maven'
         run: 'mvn'
@@ -29,18 +33,66 @@ jobs:
           name: java-binary
           path: |
             ${{ github.workspace }}/example-app/target/*.jar
-
-
-   publish-binaries:
-    name: 'Publish binaries to GitHub packages'
+  
+  build-native-image:
+    name: 'Build with GraalVM Native Image on ${{ matrix.os }}'
     needs: [ build-jar ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: linux-binary
+          - os: macos-latest
+            artifact_name: macos-binary
+          - os: windows-latest
+            artifact_name: windows-binary
+    steps:
+      - name: Download application package
+        uses: actions/download-artifact@v2
+        with:
+          name: java-binary
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.0.0.2'
+          java-version: '11'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: 'Build native image on Linux'
+        run: mvn -P native package
+        if: runner.os == 'Linux'
+      - name: 'Build native image on macOS'
+        run: mvn -P native package
+        if: runner.os == 'macOS'
+      - name: 'Build native image on Windows'
+        run: mvn -P native package
+        if: runner.os == 'Windows'
+      - name: Temporarily save package
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            ${{ github.workspace }}/example-app/target/NativeImageUsingJPMS-App
+  
+  publish-binaries:
+    name: 'Publish binaries to GitHub packages'
+    needs: [ build-native-image ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - artifact_name: java-binary
-            binary_name: NativeImageUsingJPMS-*.jar
+            binary_name: nubesgen-cli-*.jar
             file_glob: true
+          - artifact_name: linux-binary
+            binary_name: NativeImageUsingJPMS-linux
+            file_glob: false
+          - artifact_name: macos-binary
+            binary_name: NativeImageUsingJPMS-osx
+            file_glob: false
+          - artifact_name: windows-binary
+            binary_name: NativeImageUsingJPMS-windows.exe
+            file_glob: false
     steps:
       - name: Download binary
         uses: actions/download-artifact@v2
@@ -54,3 +106,4 @@ jobs:
           file_glob: ${{ matrix.file_glob }}
           tag: ${{ github.ref }}
           overwrite: true
+

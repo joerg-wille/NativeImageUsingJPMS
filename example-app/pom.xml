@@ -12,6 +12,7 @@
     </parent>
   
     <artifactId>NativeImageUsingJPMS-App</artifactId>
+    <name>NativeImageUsingJPMS</name>
     <description>
         POC for using GraalVM native-image with Java Platform Module System - app module.
     </description>
@@ -82,6 +83,8 @@
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
                         <configuration>
+                            <mainClass>${exec.mainClass}</mainClass>
+                            <imageName>${project.name}-${os.detected.name}</imageName>
                             <buildArgs combine.children="append">
                                 <buildArg>--module net.jbw.playground.app</buildArg>
                                 <buildArg>--module-path NativeImageUsingJPMS-Util-1.0.0-SNAPSHOT.jar:NativeImageUsingJPMS-App-1.0.0-SNAPSHOT.jar</buildArg>

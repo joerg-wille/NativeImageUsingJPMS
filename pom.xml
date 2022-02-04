@@ -109,7 +109,7 @@
                         <skipAssembly>${maven-assembly-plugin.skip}</skipAssembly>
                         <outputDirectory>${out}</outputDirectory>
                         <appendAssemblyId>false</appendAssemblyId>
-                        <finalName>${app.final.name}</finalName>
+                        <finalName>${project.name}</finalName>
                         <descriptorRefs>
                             <descriptorRef>jar-with-dependencies</descriptorRef><!-- use pre-defined Descriptor -->
                         </descriptorRefs>
@@ -151,15 +151,13 @@
                         </execution>-->
                     </executions>
                     <configuration>          
-                        <mainClass>${exec.mainClass}</mainClass>
-                        <imageName>${project.artifactId}</imageName>
                         <buildArgs>
                             <buildArg>--no-fallback</buildArg>
                             <buildArg>--native-image-info</buildArg>                            
                             <buildArg>--verbose</buildArg>
                             <buildArg>-H:IncludeResources=^META-INF/MANIFEST.MF$</buildArg>
                             <buildArg>-H:+ReportExceptionStackTraces</buildArg>
-                            <buildArg>-H:+ReportUnsupportedElementsAtRuntime</buildArg>                            
+                            <buildArg>-H:+ReportUnsupportedElementsAtRuntime</buildArg>                          
                         </buildArgs>
                     </configuration>
                 </plugin>
@@ -168,6 +166,14 @@
         
         <plugins>
         </plugins>
+        
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
+            </extension>
+        </extensions>
     </build>
 </project>
 
