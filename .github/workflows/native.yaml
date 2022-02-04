@@ -94,10 +94,14 @@ jobs:
             binary_name: NativeImageUsingJPMS-windows.exe
             file_glob: false
     steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v2
+        
       - name: Download binary
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.artifact_name }}
+          
       - name: Upload binary to the GitHub release page
         uses: svenstaro/upload-release-action@v2
         with:
