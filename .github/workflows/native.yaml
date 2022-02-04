@@ -1,7 +1,8 @@
 name: Build native-image
 
 on:
-  workflow_dispatch: # manual trigger build
+  # manual trigger build
+  workflow_dispatch:
 
 jobs:
   build-jar:
@@ -14,11 +15,14 @@ jobs:
       - name: 'Set up Java'
         uses: actions/setup-java@v2
         with:
-          distribution: 'temurin' # Eclipse Temurin
+          # Eclipse Temurin
+          distribution: 'temurin'
           java-version: '11'
           architecture: x64
-          check-latest: true # use most up-to-date version of Java
-          cache: 'maven' # use built-in package manager for caching and restoring dependencies
+          # use most up-to-date version of Java
+          check-latest: true
+          # use built-in package manager for caching and restoring dependencies
+          cache: 'maven'
 
       - name: 'Build with Maven'
         run: 'mvn'
@@ -31,7 +35,7 @@ jobs:
             ${{ github.workspace }}/example-app/target/*.jar
 
 
-   publish-binaries:
+  publish-binaries:
     name: 'Publish binaries to GitHub packages'
     needs: [ build-jar ]
     runs-on: ubuntu-latest
