@@ -87,7 +87,7 @@
                             <imageName>${project.name}-${os.detected.name}</imageName>
                             <buildArgs combine.children="append">
                                 <buildArg>--module net.jbw.playground.app</buildArg>
-                                <buildArg>--module-path NativeImageUsingJPMS-Util-1.0.0-SNAPSHOT.jar:NativeImageUsingJPMS-App-1.0.0-SNAPSHOT.jar</buildArg>
+                                <buildArg>--module-path NativeImageUsingJPMS-Util-1.0.0-SNAPSHOT.jar${path.separator}NativeImageUsingJPMS-App-1.0.0-SNAPSHOT.jar</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
