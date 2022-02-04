@@ -12,5 +12,8 @@
     </parent>
   
     <artifactId>NativeImageUsingJPMS-Util</artifactId>
+    <description>
+        POC for using GraalVM native-image with Java Platform Module System - utility module.
+    </description>
  
 </project>

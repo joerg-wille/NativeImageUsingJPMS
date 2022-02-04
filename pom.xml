@@ -21,6 +21,13 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        
+        <maven-compiler-plugin.version>3.9.0</maven-compiler-plugin.version>
+        <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
+        <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
+        <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+        <native-maven-plugin.version>0.9.9</native-maven-plugin.version>
     </properties>
 
     <modules>
@@ -32,13 +39,135 @@
         <defaultGoal>clean package</defaultGoal>
         <pluginManagement>
             <plugins>
+                <!-- Compiles project's sources. -->  
+                <!-- Goals: compiler:compile compiler:testCompile -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                        <compilerArgs>
+                            <!--Prevents recompilation due to missing package-info.class. -->
+                            <!-- see https://issues.apache.org/jira/browse/MCOMPILER-205 -->
+                            <arg>-Xpkginfo:always</arg>
+                        </compilerArgs>             
+                    </configuration>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>
+                                    ${project.build.directory}
+                                </outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                </plugin>
+                
+                <!-- The plugin provides 2 goals to help execute system and Java programs. -->
+                <!-- Goals: exec:exec exec:java -->                            
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec-maven-plugin.version}</version>
+                </plugin>
+                
+                <!-- Provides the capability to build single distributable archive with dependencies and other files. -->
+                <!-- Goals: assembly:single -->                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven-assembly-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                            <phase>package</phase> <!-- bind to the packaging phase -->
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <skipAssembly>${maven-assembly-plugin.skip}</skipAssembly>
+                        <outputDirectory>${out}</outputDirectory>
+                        <appendAssemblyId>false</appendAssemblyId>
+                        <finalName>${app.final.name}</finalName>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef><!-- use pre-defined Descriptor -->
+                        </descriptorRefs>
+                        <archive>
+                            <!-- do not include pom.properties and pom.xml in archieve -->
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Build-OS>${os.name} ${os.arch} ${os.version}</Build-OS>                        
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+                
+                <!-- Provides the capability to AOT compile and build a native executable -->
+                <!-- Goals: assembly:single -->       
+                <plugin>
+                    <groupId>org.graalvm.buildtools</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>${native-maven-plugin.version}</version>
+                    <extensions>true</extensions><!-- enanles JUnit Platform test listener mode-->
+                    <executions>
+                        <execution>
+                            <id>build-native</id>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                            <phase>package</phase>
+                        </execution>
+                        <!--                        <execution>
+                            <id>test-native</id>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <phase>test</phase>
+                        </execution>-->
+                    </executions>
+                    <configuration>          
+                        <mainClass>${exec.mainClass}</mainClass>
+                        <imageName>${project.artifactId}</imageName>
+                        <buildArgs>
+                            <buildArg>--no-fallback</buildArg>
+                            <buildArg>--native-image-info</buildArg>                            
+                            <buildArg>--verbose</buildArg>
+                            <buildArg>-H:IncludeResources=^META-INF/MANIFEST.MF$</buildArg>
+                            <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                            <buildArg>-H:+ReportUnsupportedElementsAtRuntime</buildArg>                            
+                        </buildArgs>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
+        
+        <plugins>
+        </plugins>
     </build>
 </project>
 

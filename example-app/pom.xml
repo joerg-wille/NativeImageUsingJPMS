@@ -12,6 +12,9 @@
     </parent>
   
     <artifactId>NativeImageUsingJPMS-App</artifactId>
+    <description>
+        POC for using GraalVM native-image with Java Platform Module System - app module.
+    </description>
 
     <dependencies>
         <dependency>
@@ -30,16 +33,14 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
                 <configuration>
                     <mainClass>${mainClass}</mainClass>
                 </configuration>
             </plugin>
-            
+                      
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
                 <configuration>
                     <archive>
                         <index>true</index>
@@ -49,7 +50,46 @@
                     </archive>
                 </configuration>
             </plugin>
+            
+            <!--            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>${mainClass}</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Project-Description>${project.description}</Project-Description>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>-->
         </plugins>
     </build>
-
+        
+    <profiles>
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                    </plugin>
+            
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <configuration>
+                            <buildArgs combine.children="append">
+                                <buildArg>--module net.jbw.playground.app</buildArg>
+                                <buildArg>--module-path NativeImageUsingJPMS-Util-1.0.0-SNAPSHOT.jar:NativeImageUsingJPMS-App-1.0.0-SNAPSHOT.jar</buildArg>
+                            </buildArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
