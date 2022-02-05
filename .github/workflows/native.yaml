@@ -94,12 +94,15 @@ jobs:
           - artifact_name: linux-binary
             binary_name: NativeImageUsingJPMS-linux
             file_glob: false
+            strip: true
           - artifact_name: macos-binary
             binary_name: NativeImageUsingJPMS-osx
             file_glob: false
+            strip: false
           - artifact_name: windows-binary
             binary_name: NativeImageUsingJPMS-windows.exe
             file_glob: false
+            strip: true
     steps:
       - name: 'Download binary'
         uses: actions/download-artifact@v2
@@ -113,6 +116,7 @@ jobs:
         uses: svenstaro/upx-action@v2
         with:
           file: ${{ matrix.binary_name }}
+          strip: ${{ matrix.strip }}
         
       - name: Upload binary to the GitHub release page
         uses: svenstaro/upload-release-action@v2
