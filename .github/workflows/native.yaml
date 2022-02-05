@@ -107,7 +107,7 @@ jobs:
           name: ${{ matrix.artifact_name }}
           
       - name: 'Make executable'
-        run: chmod +x
+        run: chmod +x ${{ matrix.binary_name }}
 
       - name: Compress binaries
         uses: svenstaro/upx-action@v2
