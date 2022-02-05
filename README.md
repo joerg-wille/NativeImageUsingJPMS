@@ -21,6 +21,7 @@ POC for GraalVM NativeImage using the Java Platform Module System
 1. `./example`
 
 ### Output
+```
 Module info for "net.jbw.playground.util":
     Module descriptor:
         Packages:
@@ -54,3 +55,4 @@ Module info for "net.jbw.playground.app":
        Created-By: Maven Jar Plugin 3.2.0
        Build-Jdk-Spec: 17
        Main-Class: net.jbw.playground.app.Main
+ ```
