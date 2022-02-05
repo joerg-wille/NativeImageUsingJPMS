@@ -14,6 +14,7 @@ import net.jbw.playground.util.Calculator;
 public class Main {
 
     public static void main(String[] args) throws MalformedURLException, IOException {
+        System.out.println("POC for GraalVM NativeImage using the Java Platform Module System");
         System.out.println("Command: " + ProcessHandle.current().info().commandLine());
         System.out.println("Hello from Java Module: " + Main.class.getModule().getName());
         System.out.println("Required Java Module: " + Calculator.class.getModule().getName());
