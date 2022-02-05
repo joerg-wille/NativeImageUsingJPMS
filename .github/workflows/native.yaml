@@ -105,7 +105,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.artifact_name }}
-          
+      
+      - name: Compress binaries
+        uses: svenstaro/upx-action@v2
+        with:
+          file: ${{ matrix.binary_name }}
+        
       - name: Upload binary to the GitHub release page
         uses: svenstaro/upload-release-action@v2
         with:
@@ -114,4 +119,3 @@ jobs:
           file_glob: ${{ matrix.file_glob }}
           tag: ${{ github.ref }}
           overwrite: true
-
