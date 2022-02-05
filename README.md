@@ -19,3 +19,38 @@ POC for GraalVM NativeImage using the Java Platform Module System
 
 ### Run Native Image
 1. `./example`
+
+### Output
+Module info for "net.jbw.playground.util":
+    Module descriptor:
+        Packages:
+            net.jbw.playground.util
+        Modifiers:
+        Opens:
+        Provides:
+        Requires:
+            mandated java.base
+        Uses:
+    Module resource "META-INF/MANIFEST.MF":
+       Manifest-Version: 1.0
+       Archiver-Version: Plexus Archiver
+       Created-By: Apache Maven 3.8.3
+       Built-By: joerg
+       Build-Jdk: 17.0.2
+       
+Module info for "net.jbw.playground.app":
+    Module descriptor:
+        Packages:
+            net.jbw.playground.app
+        Modifiers:
+        Opens:
+        Provides:
+        Requires:
+            net.jbw.playground.util (@1.0.0-SNAPSHOT)
+            mandated java.base
+        Uses:
+    Module resource "META-INF/MANIFEST.MF":
+       Manifest-Version: 1.0
+       Created-By: Maven Jar Plugin 3.2.0
+       Build-Jdk-Spec: 17
+       Main-Class: net.jbw.playground.app.Main
