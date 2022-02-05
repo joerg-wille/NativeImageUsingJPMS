@@ -102,7 +102,7 @@ jobs:
           - artifact_name: windows-binary
             binary_name: NativeImageUsingJPMS-windows.exe
             file_glob: false
-            strip: true
+            strip: false
     steps:
       - name: 'Download binary'
         uses: actions/download-artifact@v2
